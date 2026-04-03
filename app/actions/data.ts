@@ -56,6 +56,7 @@ interface PersonDetailsPrivateExport {
 interface CustomEventExport {
   id: string;
   name: string;
+  event_type: "custom_event" | "organized_event" | null;
   content: string | null;
   event_date: string;
   location: string | null;
@@ -117,6 +118,7 @@ function sanitizeCustomEvent(
   return {
     id: e.id,
     name: e.name,
+    event_type: e.event_type ?? "custom_event",
     content: e.content ?? null,
     event_date: e.event_date,
     location: e.location ?? null,
@@ -170,7 +172,7 @@ export async function exportData(
 
   const { data: allCustomEvents, error: customEventsError } = await supabase
     .from("custom_events")
-    .select("id, name, content, event_date, location, created_by")
+    .select("id, name, event_type, content, event_date, location, created_by")
     .order("event_date", { ascending: true });
 
   if (customEventsError)
@@ -233,7 +235,7 @@ export async function exportData(
   }
 
   return {
-    version: 3, // v3: adds death_lunar_*, person_details_private, relationship note, custom_events
+    version: 4, // v4: adds custom_events.event_type
     timestamp: new Date().toISOString(),
     persons: exportPersons,
     relationships: exportRels,

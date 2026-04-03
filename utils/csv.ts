@@ -15,6 +15,7 @@ interface PersonDetailsPrivateRow {
 interface CustomEventRow {
   id: string;
   name: string;
+  event_type: "custom_event" | "organized_event" | null;
   content: string | null;
   event_date: string;
   location: string | null;

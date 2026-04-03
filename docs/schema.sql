@@ -113,6 +113,7 @@ CREATE TABLE IF NOT EXISTS public.relationships (
 CREATE TABLE IF NOT EXISTS public.custom_events (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   name TEXT NOT NULL,
+  event_type TEXT NOT NULL DEFAULT 'custom_event' CHECK (event_type IN ('custom_event', 'organized_event')),
   content TEXT,
   event_date DATE NOT NULL,
   location TEXT,
@@ -145,6 +146,7 @@ CREATE INDEX IF NOT EXISTS idx_profiles_is_active ON public.profiles(is_active);
 -- Custom events lookups
 CREATE INDEX IF NOT EXISTS idx_custom_events_date ON public.custom_events(event_date);
 CREATE INDEX IF NOT EXISTS idx_custom_events_created_by ON public.custom_events(created_by);
+CREATE INDEX IF NOT EXISTS idx_custom_events_type ON public.custom_events(event_type);
 
 -- ==========================================
 -- RLS POLICIES
@@ -192,7 +194,8 @@ CREATE POLICY "Admins can view all profiles" ON public.profiles FOR SELECT USING
 
 -- PERSONS POLICIES
 DROP POLICY IF EXISTS "Enable read access for authenticated users" ON public.persons;
-CREATE POLICY "Enable read access for authenticated users" ON public.persons FOR SELECT TO authenticated USING (true);
+DROP POLICY IF EXISTS "Public can view persons" ON public.persons;
+CREATE POLICY "Public can view persons" ON public.persons FOR SELECT USING (true);
 
 DROP POLICY IF EXISTS "Admins can manage persons" ON public.persons;
 DROP POLICY IF EXISTS "Admins can insert persons" ON public.persons;
@@ -212,7 +215,8 @@ CREATE POLICY "Admins can manage private details" ON public.person_details_priva
 
 -- RELATIONSHIPS POLICIES
 DROP POLICY IF EXISTS "Enable read access for authenticated users" ON public.relationships;
-CREATE POLICY "Enable read access for authenticated users" ON public.relationships FOR SELECT TO authenticated USING (true);
+DROP POLICY IF EXISTS "Public can view relationships" ON public.relationships;
+CREATE POLICY "Public can view relationships" ON public.relationships FOR SELECT USING (true);
 
 DROP POLICY IF EXISTS "Admins can manage relationships" ON public.relationships;
 DROP POLICY IF EXISTS "Admins can insert relationships" ON public.relationships;
@@ -227,7 +231,8 @@ CREATE POLICY "Admins and Editors can delete relationships" ON public.relationsh
 ALTER TABLE public.custom_events ENABLE ROW LEVEL SECURITY;
 
 DROP POLICY IF EXISTS "Enable read access for authenticated users" ON public.custom_events;
-CREATE POLICY "Enable read access for authenticated users" ON public.custom_events FOR SELECT TO authenticated USING (true);
+DROP POLICY IF EXISTS "Public can view custom events" ON public.custom_events;
+CREATE POLICY "Public can view custom events" ON public.custom_events FOR SELECT USING (true);
 
 DROP POLICY IF EXISTS "Authenticated users can insert custom events" ON public.custom_events;
 CREATE POLICY "Authenticated users can insert custom events" ON public.custom_events FOR INSERT TO authenticated WITH CHECK (auth.uid() = created_by);

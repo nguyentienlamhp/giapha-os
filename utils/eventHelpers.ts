@@ -1,6 +1,10 @@
 import { Lunar, Solar } from "lunar-javascript";
 
-export type EventType = "birthday" | "death_anniversary" | "custom_event";
+export type EventType =
+  | "birthday"
+  | "death_anniversary"
+  | "custom_event"
+  | "organized_event";
 
 export interface FamilyEvent {
   personId: string | null;
@@ -27,6 +31,7 @@ export interface FamilyEvent {
 export interface CustomEventRecord {
   id: string;
   name: string;
+  event_type: "custom_event" | "organized_event" | null;
   content: string | null;
   event_date: string;
   location: string | null;
@@ -90,7 +95,7 @@ export function computeEvents(
     death_lunar_day: number | null;
     is_deceased: boolean;
   }[],
-  customEvents: CustomEventRecord[] = []
+  customEvents: CustomEventRecord[] = [],
 ): FamilyEvent[] {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -228,7 +233,7 @@ export function computeEvents(
     events.push({
       personId: ce.id, // using event id here
       personName: ce.name, // mapping custom event name to personName
-      type: "custom_event",
+      type: ce.event_type === "organized_event" ? "organized_event" : "custom_event",
       nextOccurrence: next,
       daysUntil,
       eventDateLabel: `${d.toString().padStart(2, "0")}/${m.toString().padStart(2, "0")}/${y}`,
